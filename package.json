@@ -17,6 +17,8 @@
     "./page-composition": {
       "types": "./src/page-composition.d.ts",
       "import": "./src/page-composition.mjs"
-    }
+    },
+    "./editor-service": "./src/editor-service.mjs",
+    "./draft": "./src/admin.mjs"
   }
 }

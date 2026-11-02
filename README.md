@@ -76,3 +76,7 @@ This is a public presentation configuration editor, not an authenticated CMS. It
 
 ### Homepage composition and theme switching
 Build with your pinned parent/child `--theme` directories, then open `/admin`. Choose an installed chain prefix, adjust navigation/spacing and colors, reorder or hide homepage sections, save/restore a browser draft, and preview the actual homepage before downloading configuration. Rebuild with `--site site.json` and the same pinned themes to apply it. This is presentation authoring, not live publishing or shared entity mutation. The portable versioned layout module is available at `@competition-hub/child-sites/page-composition`; see [admin integration boundaries](docs/admin.md).
+
+
+### Authenticated publishing
+The framework now includes a server-side revision-safe draft/publish service and matching hosted admin controls. Configure the existing host authentication/authorization and a durable atomic store; the default standalone CLI remains a public draft editor and cannot publish. Jackalope's validation host integrates its existing Hub login and management checks, private presentation storage and canonical shared-series layout command. Platform publishes the same controls/service for other products; consumer rollout is separate from package availability. See [service and host contracts](docs/admin.md#authenticated-draft-and-publish-service).
