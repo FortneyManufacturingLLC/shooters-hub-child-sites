@@ -8,13 +8,14 @@ The Node adapter performs `GET <server-configured origin>/api/site`. The origin 
 
 ```json
 {
+  "communityId": "shooters-hub",
   "series": {"id": "your-series-id", "title": "Series title", "shortDescription": "Public description", "sponsors": []},
   "matches": [],
   "source": {"partial": false, "updatedAt": "2026-11-01T00:00:00Z"}
 }
 ```
 
-A match exposes `id`, `title`, `start` (ISO date or offset-bearing timestamp), `timeTbd`, `location` and `status`. Sponsors expose `name`, `displayLabel` and HTTPS `website`. Private owner, account, financial and raw database fields are not forwarded. A different series identity is rejected. Missing data stays missing.
+A match exposes `id`, `title`, `start` (ISO date or offset-bearing timestamp), `timeTbd`, `location` and `status`. Sponsors expose `name`, `displayLabel` and HTTPS `website`. Private owner, account, financial and raw database fields are not forwarded. A different series identity is rejected. A supplied `communityId` must match the site binding. Legacy payloads without that marker are accepted only by the Shooters Hub compatibility pack; other communities require an explicit matching marker. Missing data stays missing.
 
 ## Future provider ports
 
