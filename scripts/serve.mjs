@@ -1,3 +1,4 @@
+import {validateAdminDraft} from '../src/admin.mjs';
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
@@ -9,13 +10,19 @@ export function createStarterServer({root,site,gateway=null,token='',fetcher=fet
  return createServer(async(req,res)=>{
   const send=(status,body,type='application/json')=>{res.writeHead(status,{...headers,'Content-Type':type+'; charset=utf-8','Cache-Control':'no-store'});res.end(req.method==='HEAD'?undefined:body);};
   let url;try{url=new URL(req.url,'http://local');}catch{send(400,'Bad request target','text/plain');return;}
+  if(url.pathname==='/api/admin/draft'&&req.method==='POST'){
+   if(url.search){send(400,JSON.stringify({error:'Unexpected query parameters'}));return;}
+   if(req.headers['content-type']?.split(';')[0]!=='application/json'){send(415,JSON.stringify({error:'Send JSON configuration'}));return;}
+   if(req.headers['sec-fetch-site']==='cross-site'){send(403,JSON.stringify({error:'Cross-site request rejected'}));return;}
+   try{let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>16384){send(413,JSON.stringify({error:'Configuration exceeds 16 KB'}));return;}}send(200,JSON.stringify(validateAdminDraft(site,JSON.parse(body))));}catch(error){send(400,JSON.stringify({error:error instanceof SyntaxError?'Invalid JSON configuration':error.message}));}return;
+  }
   if(!['GET','HEAD'].includes(req.method)){send(405,'{"error":"read_only_starter"}');return;}
   if(url.pathname==='/api/site'){
    if(url.search){send(400,'{"error":"scope_is_server_bound"}');return;}
    if(!gateway){send(503,'{"error":"gateway_not_configured"}');return;}
    try{const response=await fetcher(gateway+'/api/site',{headers:{accept:'application/json',...(token?{authorization:'Bearer '+token}:{})},redirect:'error',signal:AbortSignal.timeout(15000)});if(!response.ok)throw Error('Gateway unavailable');send(200,JSON.stringify(normalizeSnapshot(await response.json(),site)));}catch{send(503,'{"error":"gateway_unavailable"}');}return;
   }
-  let path;try{path=resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));}catch{send(400,'Bad path','text/plain');return;}
+  let path;try{path=resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':['/admin','/admin/'].includes(url.pathname)?'/admin.html':url.pathname));}catch{send(400,'Bad path','text/plain');return;}
   if(!path.startsWith(root+sep)){send(404,'Not found','text/plain');return;}
   try{const bytes=await readFile(path);send(200,bytes,({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.jpg':'image/jpeg','.png':'image/png'})[extname(path)]||'application/octet-stream');}catch{send(404,'Not found','text/plain');}
  });

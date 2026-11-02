@@ -67,3 +67,8 @@ Shooters Hub and a distinct Tractor Pullers Hub could share competition infrastr
 ## Contributing and verification
 
 Run `npm test` and `npm run build`. Tests cover theme inheritance, forbidden security overrides, series identity, safe URLs, results sorting/CSV, and date-only/time-zone behavior. UI changes need desktop/mobile and keyboard checks. Do not submit credentials, production exports, private packages or unlicensed brand assets. See [SECURITY.md](SECURITY.md).
+
+## Site administration
+Open `/admin` when running the Node starter. The theme-aware configuration editor provides a preview, public connection status, immutable scope summary, and validated `site.json` download. Rebuild with that configuration and your pinned themes, then deploy to publish. Drafts stay in the current tab; they are not automatically saved.
+
+This is a public presentation configuration editor, not an authenticated CMS. It cannot change Hub data, users, permissions, provider credentials, or deployment scope. Static-only hosting can serve the interface at `/admin.html`, but download validation requires the Node server endpoint. Live publishing and protected admin operations require an authenticated provider; see [admin boundaries](docs/admin.md).
