@@ -1,7 +1,7 @@
 import {validateSite} from './contracts.mjs';
 import {resolveThemes} from './themes.mjs';
 
-export const ADMIN_DRAFT_FIELDS = Object.freeze(['title', 'timeZone', 'brand', 'themeTokens']);
+export const ADMIN_DRAFT_FIELDS = Object.freeze(['title', 'timeZone', 'brand', 'themeTokens', 'homePage', 'themeLayout', 'themeId']);
 const immutable = new Set(['siteId', 'communityId', 'seriesId', 'canonicalOrigin', 'entityBaseOrigin']);
 const sensitiveKey = /^(?:api[-_]?key|access[-_]?token|refresh[-_]?token|client[-_]?secret|secret|password|credentials?|authorization|auth|cookie|session)$/i;
 
@@ -57,6 +57,7 @@ export function validateAdminDraft(base, patch) {
     }
     candidate.themeTokens = {...patch.themeTokens};
   }
+  for (const key of ['homePage','themeLayout','themeId']) if(Object.hasOwn(patch,key)) candidate[key]=patch[key];
   const validated = validateSite(candidate);
   return {...validated, brand: {...validated.brand}, themeTokens: {...validated.themeTokens}};
 }

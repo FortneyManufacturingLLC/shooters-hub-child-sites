@@ -37,7 +37,7 @@ test('all scope identifiers and origins are immutable, even for same-value patch
 });
 
 test('drafts reject unknown fields, permission claims, credentials and malformed objects', () => {
-  assert.deepEqual(ADMIN_DRAFT_FIELDS, ['title', 'timeZone', 'brand', 'themeTokens']);
+  assert.deepEqual(ADMIN_DRAFT_FIELDS, ['title', 'timeZone', 'brand', 'themeTokens', 'homePage', 'themeLayout', 'themeId']);
   for (const field of ['apiKey', 'password', 'admin', 'roles', 'permissions', 'provider', '__proto__']) {
     assert.throws(() => validateAdminDraft(base, JSON.parse(`{"${field}":"secret"}`)), /Unknown draft field/);
   }

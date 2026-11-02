@@ -72,3 +72,7 @@ Run `npm test` and `npm run build`. Tests cover theme inheritance, forbidden sec
 Open `/admin` when running the Node starter. The theme-aware configuration editor provides a preview, public connection status, immutable scope summary, and validated `site.json` download. Rebuild with that configuration and your pinned themes, then deploy to publish. Drafts stay in the current tab; they are not automatically saved.
 
 This is a public presentation configuration editor, not an authenticated CMS. It cannot change Hub data, users, permissions, provider credentials, or deployment scope. Static-only hosting can serve the interface at `/admin.html`, but download validation requires the Node server endpoint. Live publishing and protected admin operations require an authenticated provider; see [admin boundaries](docs/admin.md).
+
+
+### Homepage composition and theme switching
+Build with your pinned parent/child `--theme` directories, then open `/admin`. Choose an installed chain prefix, adjust navigation/spacing and colors, reorder or hide homepage sections, save/restore a browser draft, and preview the actual homepage before downloading configuration. Rebuild with `--site site.json` and the same pinned themes to apply it. This is presentation authoring, not live publishing or shared entity mutation. The portable versioned layout module is available at `@competition-hub/child-sites/page-composition`; see [admin integration boundaries](docs/admin.md).

@@ -12,5 +12,11 @@
     "start": "node scripts/serve.mjs",
     "test": "node --test",
     "check": "node --check src/results.js && node --check src/dates.js && node --test"
+  },
+  "exports": {
+    "./page-composition": {
+      "types": "./src/page-composition.d.ts",
+      "import": "./src/page-composition.mjs"
+    }
   }
 }

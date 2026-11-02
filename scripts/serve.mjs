@@ -4,8 +4,8 @@ import {readFile} from 'node:fs/promises';
 import {resolve,sep,extname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {httpsOrigin,validateSite,normalizeSnapshot} from '../src/contracts.mjs';
-const headers={'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'self'; frame-ancestors 'none'"};
-export function createStarterServer({root,site,gateway=null,token='',fetcher=fetch}){
+const headers={'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'self'; frame-ancestors 'self'"};
+export function createStarterServer({root,site,gateway=null,token='',fetcher=fetch,themeIds=['core']}){
  root=resolve(root);site=validateSite(site);gateway=gateway?httpsOrigin(gateway):null;
  return createServer(async(req,res)=>{
   const send=(status,body,type='application/json')=>{res.writeHead(status,{...headers,'Content-Type':type+'; charset=utf-8','Cache-Control':'no-store'});res.end(req.method==='HEAD'?undefined:body);};
@@ -14,7 +14,7 @@ export function createStarterServer({root,site,gateway=null,token='',fetcher=fet
    if(url.search){send(400,JSON.stringify({error:'Unexpected query parameters'}));return;}
    if(req.headers['content-type']?.split(';')[0]!=='application/json'){send(415,JSON.stringify({error:'Send JSON configuration'}));return;}
    if(req.headers['sec-fetch-site']==='cross-site'){send(403,JSON.stringify({error:'Cross-site request rejected'}));return;}
-   try{let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>16384){send(413,JSON.stringify({error:'Configuration exceeds 16 KB'}));return;}}send(200,JSON.stringify(validateAdminDraft(site,JSON.parse(body))));}catch(error){send(400,JSON.stringify({error:error instanceof SyntaxError?'Invalid JSON configuration':error.message}));}return;
+   try{let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>16384){send(413,JSON.stringify({error:'Configuration exceeds 16 KB'}));return;}}const draft=validateAdminDraft(site,JSON.parse(body));if(draft.themeId&&!themeIds.includes(draft.themeId))throw Error('Theme is not installed in this build');send(200,JSON.stringify(draft));}catch(error){send(400,JSON.stringify({error:error instanceof SyntaxError?'Invalid JSON configuration':error.message}));}return;
   }
   if(!['GET','HEAD'].includes(req.method)){send(405,'{"error":"read_only_starter"}');return;}
   if(url.pathname==='/api/site'){
@@ -27,4 +27,4 @@ export function createStarterServer({root,site,gateway=null,token='',fetcher=fet
   try{const bytes=await readFile(path);send(200,bytes,({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.jpg':'image/jpeg','.png':'image/png'})[extname(path)]||'application/octet-stream');}catch{send(404,'Not found','text/plain');}
  });
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){const root=resolve('dist'),site=JSON.parse(await readFile(resolve(root,'site.json'),'utf8'));createStarterServer({root,site,gateway:process.env.HUB_GATEWAY_ORIGIN||null,token:process.env.HUB_GATEWAY_TOKEN||''}).listen(Number(process.env.PORT)||8768,()=>console.log('Child-site starter listening'));}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){const root=resolve('dist'),site=JSON.parse(await readFile(resolve(root,'site.json'),'utf8'));createStarterServer({root,site,gateway:process.env.HUB_GATEWAY_ORIGIN||null,token:process.env.HUB_GATEWAY_TOKEN||'',themeIds:JSON.parse(await readFile(resolve(root,'theme-catalog.json'),'utf8')).map(theme=>theme.id)}).listen(Number(process.env.PORT)||8768,()=>console.log('Child-site starter listening'));}
