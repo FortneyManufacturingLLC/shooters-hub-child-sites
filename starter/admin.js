@@ -22,3 +22,16 @@ $('save-draft').addEventListener('click',async()=>{try{localStorage.setItem(stor
 $('restore-draft').addEventListener('click',()=>{try{const draft=JSON.parse(localStorage.getItem(storageKey));if(!draft)throw Error('No browser draft has been saved for this site.');applyDraft(draft);$('page-status').textContent='Browser draft restored. It has not been published.';}catch(error){$('page-status').textContent=error.message;}});
 form.addEventListener('submit',async event=>{event.preventDefault();const button=form.querySelector('[type=submit]');button.disabled=true;status.textContent='Validating configuration…';try{const data=await validate(),url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)+'\n'],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='site.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status.textContent='Configuration downloaded. Rebuild and deploy to publish it.';}catch(error){status.textContent=error.message;}finally{button.disabled=false;}});
 fetch('/api/site').then(async response=>{if(!response.ok)throw Error();const snapshot=await response.json();$('connection-status').textContent=snapshot.source?.partial?'Connected, but some public data could not be loaded.':'Public provider connected. Live administrative access is not configured.';}).catch(()=>{$('connection-status').textContent='Public provider unavailable or not configured. You can still prepare your site configuration.';});
+
+// Hosts supply account integration; the shared UI never handles credentials itself.
+const host=window.HubAdminHost;let savedRevision=null,pendingCommand=null;
+if(host){$('host-editor').hidden=false;
+ const load=async()=>{try{const result=await host.request('/api/admin/config');savedRevision=result.revision;applyDraft(result.draft);$('host-status').textContent='Saved draft loaded. Revision '+savedRevision+'.';pendingCommand=null;}catch(error){$('host-status').textContent=error.message;}};
+ $('host-load').addEventListener('click',load);
+ async function save(action){if(savedRevision===null){$('host-status').textContent='Load the saved draft before saving changes.';return;}
+  if(action==='publish'&&!window.confirm('Publish this draft to the site? Shared Hub entity content is unchanged.'))return;
+  const config=patch(),fingerprint=JSON.stringify({config,action,expectedRevision:savedRevision});if(!pendingCommand||pendingCommand.fingerprint!==fingerprint)pendingCommand={fingerprint,body:{config,action,expectedRevision:savedRevision,requestId:crypto.randomUUID()}};
+  try{const result=await host.request('/api/admin/config',{method:'POST',body:JSON.stringify(pendingCommand.body)});savedRevision=result.revision;pendingCommand=null;$('host-status').textContent=action==='publish'?'Published to this site. Revision '+savedRevision+'.':'Draft saved. Your published site is unchanged.';}catch(error){$('host-status').textContent=error.message+' Your edits are still here. Load saved draft only when ready to replace them.';}
+ }
+ $('host-save').addEventListener('click',()=>save('draft'));$('host-publish').addEventListener('click',()=>save('publish'));host.ready?.then(load);
+}

@@ -5,11 +5,23 @@ import {resolve,sep,extname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {httpsOrigin,validateSite,normalizeSnapshot} from '../src/contracts.mjs';
 const headers={'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'self'; frame-ancestors 'self'"};
-export function createStarterServer({root,site,gateway=null,token='',fetcher=fetch,themeIds=['core']}){
+export function createStarterServer({root,site,gateway=null,token='',fetcher=fetch,themeIds=['core'],editorService=null}){
  root=resolve(root);site=validateSite(site);gateway=gateway?httpsOrigin(gateway):null;
  return createServer(async(req,res)=>{
   const send=(status,body,type='application/json')=>{res.writeHead(status,{...headers,'Content-Type':type+'; charset=utf-8','Cache-Control':'no-store'});res.end(req.method==='HEAD'?undefined:body);};
   let url;try{url=new URL(req.url,'http://local');}catch{send(400,'Bad request target','text/plain');return;}
+  if(url.pathname==='/api/admin/config'||url.pathname==='/api/site-presentation'){
+   if(!editorService){send(503,JSON.stringify({error:'Authenticated editor provider is not configured'}));return;}
+   if(url.search){send(400,JSON.stringify({error:'Scope is deployment bound'}));return;}
+   if(url.pathname==='/api/site-presentation'&&req.method==='GET'){const result=await editorService.readPublished();send(result.status,JSON.stringify(result.data));return;}
+   if(url.pathname==='/api/admin/config'&&req.method==='GET'){const result=await editorService.read({authorization:req.headers.authorization});send(result.status,JSON.stringify(result.data));return;}
+   if(url.pathname==='/api/admin/config'&&req.method==='POST'){
+    if(req.headers['sec-fetch-site']==='cross-site'){send(403,JSON.stringify({error:'Cross-site request rejected'}));return;}
+    if(req.headers['content-type']?.split(';')[0]!=='application/json'){send(415,JSON.stringify({error:'JSON required'}));return;}
+    try{let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>65536){send(413,JSON.stringify({error:'Payload too large'}));return;}}const result=await editorService.save({authorization:req.headers.authorization,body:JSON.parse(body)});send(result.status,JSON.stringify(result.data));}catch{send(400,JSON.stringify({error:'Invalid request'}));}return;
+   }
+   send(405,JSON.stringify({error:'Method not allowed'}));return;
+  }
   if(url.pathname==='/api/admin/draft'&&req.method==='POST'){
    if(url.search){send(400,JSON.stringify({error:'Unexpected query parameters'}));return;}
    if(req.headers['content-type']?.split(';')[0]!=='application/json'){send(415,JSON.stringify({error:'Send JSON configuration'}));return;}
