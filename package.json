@@ -19,6 +19,14 @@
       "import": "./src/page-composition.mjs"
     },
     "./editor-service": "./src/editor-service.mjs",
-    "./draft": "./src/admin.mjs"
+    "./draft": "./src/admin.mjs",
+    "./series-summary": {
+      "types": "./src/series-summary.d.ts",
+      "import": "./src/series-summary.mjs"
+    },
+    "./series-summary/fixtures": {
+      "types": "./src/series-summary-fixtures.d.ts",
+      "import": "./src/series-summary-fixtures.mjs"
+    }
   }
 }
