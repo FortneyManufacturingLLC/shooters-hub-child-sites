@@ -60,6 +60,7 @@ test('old default archive is exact051e; explicit client mode is deterministic, i
   try {
     const legacy = pack(temporary);
     const legacyBytes = await readFile(legacy.archivePath);
+    assert.equal(legacyBytes[9], 10, 'Frozen gzip OS metadata must be independent of the build host');
     assert.equal(digest(legacyBytes), legacyHash);
     const old = entries(legacyBytes, oldNames);
     const first = pack(temporary, true), second = pack(temporary, true);
