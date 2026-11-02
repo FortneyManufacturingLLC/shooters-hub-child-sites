@@ -1,0 +1,10 @@
+{
+  "siteId": "my-series-site",
+  "communityId": "shooters-hub",
+  "seriesId": "replace-with-your-series-id",
+  "title": "My Series",
+  "canonicalOrigin": "https://example.com",
+  "entityBaseOrigin": "https://shootershub.net",
+  "timeZone": "America/Chicago",
+  "brand": {}
+}

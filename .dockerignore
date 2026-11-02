@@ -1,0 +1,8 @@
+*
+!package.json
+!src/
+!src/**
+!scripts/
+!scripts/serve.mjs
+!dist/
+!dist/**

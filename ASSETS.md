@@ -1,0 +1,1 @@
+The MIT license covers this repository's code. No Jackalope or Athlon marks, field photographs, paid fonts or private Hub packages are distributed here. Supply licensed deployment assets separately. Third-party product names convey no trademark rights.
