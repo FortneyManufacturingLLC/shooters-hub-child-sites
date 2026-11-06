@@ -1,5 +1,7 @@
 /* Hub SiteShare presentation, adapted to a native modal and theme tokens. */
 .shooters-share-dialog{box-sizing:border-box;width:min(49rem,calc(100vw - 32px));max-width:49rem;max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:24px;border:1px solid var(--hub-line,#d0d9d3);border-radius:16px;color:var(--hub-ink,#1c2622);background:var(--hub-surface,#fafdfc);box-shadow:0 24px 72px #0c1a154d;font-family:Barlow,Arial,sans-serif}
+html:has(.shooters-share-dialog[open]){overflow:hidden}
+.shooters-share-dialog{overscroll-behavior:contain}
 .shooters-share-dialog::backdrop{background:#111c1894}
 .shooters-share-dialog *{box-sizing:border-box}
 .shooters-share-dialog svg{display:block;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
