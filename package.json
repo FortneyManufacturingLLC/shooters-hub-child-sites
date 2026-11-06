@@ -27,6 +27,10 @@
     "./series-summary/fixtures": {
       "types": "./src/series-summary-fixtures.d.ts",
       "import": "./src/series-summary-fixtures.mjs"
+    },
+    "./rulebooks": {
+      "types": "./src/rulebooks.d.ts",
+      "import": "./src/rulebooks.mjs"
     }
   }
 }
