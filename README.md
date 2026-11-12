@@ -80,3 +80,7 @@ Build with your pinned parent/child `--theme` directories, then open `/admin`. C
 
 ### Authenticated publishing
 The framework now includes a server-side revision-safe draft/publish service and matching hosted admin controls. Configure the existing host authentication/authorization and a durable atomic store; the default standalone CLI remains a public draft editor and cannot publish. Jackalope's validation host integrates its existing Hub login and management checks, private presentation storage and canonical shared-series layout command. Platform publishes the same controls/service for other products; consumer rollout is separate from package availability. See [service and host contracts](docs/admin.md#authenticated-draft-and-publish-service).
+
+## Membership administration
+
+The starter includes a Members workspace for a connected Season, with a protected host-adapter contract, roster/answer views and CSV export. See [shared membership administration](docs/membership-admin.md) for integration, permission and questionnaire-version requirements. The static starter does not contain authentication credentials or member records.

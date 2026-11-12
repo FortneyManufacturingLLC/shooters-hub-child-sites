@@ -19,6 +19,8 @@
       "import": "./src/page-composition.mjs"
     },
     "./editor-service": "./src/editor-service.mjs",
-    "./draft": "./src/admin.mjs"
+    "./draft": "./src/admin.mjs",
+    "./admin/memberships": "./src/admin/membership-model.mjs",
+    "./admin/membership-view": "./src/admin/membership-view.mjs"
   }
 }
